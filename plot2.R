@@ -1,22 +1,17 @@
-setwd("C:/Users/carlo_000/Documents/GitHub/Exploratory-Data-Analysis-Course-Project")
-data <- read.csv("household_power_consumption.txt",
-                 header = T,
-                 sep = ';',
-                 na.strings = "?",
-                 nrows = 2075259,
-                 check.names = F,
-                 stringsAsFactors = F,
-                 comment.char = "",
-                 quote = '\"')
-head(data)
-dataSubset <- subset(data, Date %in% c("1/2/2007","2/2/2007"))
-dataSubset$Date <- as.Date(dataSubset$Date, format="%d/%m/%Y")
-Time <- paste(as.Date(dataSubset$Date), dataSubset$Time)
-dataSubset$Time <- as.POSIXct(Time)
-with(dataSubset, plot(Global_active_power ~ Time,
-                        type = "l",
-                        ylab = "Global Active Power (kilowatts)",
-                        xlab = "")
-       )
-dev.copy(png, file="plot2.png", height=480, width=480)
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
+library(dplyr)
+library(tidyr)
+emissionsBaltimore <- filter(NEI, fips == "24510")
+totalBaltimore <- summarise(group_by(emissionsBaltimore, year),
+                            Emissions = sum(Emissions)
+                            )
+plot(totalBaltimore$year,
+     totalBaltimore$Emissions,
+     type='l',
+     main = expression('Total PM'[2.5]*' emissions in Baltimore (in tons)'),
+     ylab='Emissions',
+     xlab='Year'
+     )
+dev.copy(png, file="plot2.png", width=480, height=480)
 dev.off()
